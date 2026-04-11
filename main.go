@@ -3,48 +3,9 @@ package main
 import (
 	"log"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
-	"sync/atomic"
+	"time"
 )
 
-type Backend struct {
-	URL   *url.URL
-	Proxy *httputil.ReverseProxy
-}
-
-type LoadBalancer struct {
-	backends []*Backend
-	counter  atomic.Uint64
-}
-
-func NewLoadBalancer(urls []string) (*LoadBalancer, error) {
-	backends := make([]*Backend, 0, len(urls))
-
-	for _, raw := range urls {
-		u, err := url.Parse(raw)
-		if err != nil {
-			return nil, err
-		}
-		backends = append(backends, &Backend{
-			URL:   u,
-			Proxy: httputil.NewSingleHostReverseProxy(u),
-		})
-	}
-
-	return &LoadBalancer{backends: backends}, nil
-}
-
-func (lb *LoadBalancer) nextBackend() *Backend {
-	idx := lb.counter.Add(1) - 1
-	return lb.backends[idx%uint64(len(lb.backends))]
-}
-
-func (lb *LoadBalancer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	backend := lb.nextBackend()
-	log.Printf("forwarding to %s", backend.URL)
-	backend.Proxy.ServeHTTP(w, r)
-}
 
 func main() {
 	urls := []string{
@@ -57,6 +18,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	lb.StartHealthCheck(10 * time.Second)
 
 	server := &http.Server{
 		Addr:    ":8080",
