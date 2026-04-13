@@ -4,22 +4,37 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/tarunsde4345/http-loadbalancer-go/backend"
+	"github.com/tarunsde4345/http-loadbalancer-go/balancer"
+	"github.com/tarunsde4345/http-loadbalancer-go/balancer/strategy"
 )
 
 
 func main() {
-	urls := []string{
-		"http://localhost:9090",
-		"http://localhost:9091",
-		"http://localhost:9092",
+	// urls := []string{
+	// 	"http://localhost:9001",
+	// 	"http://localhost:9002",
+	// 	"http://localhost:9003",
+	// }
+
+	backendConfig := []*backend.BackendConfig{
+		{URL: "http://localhost:9001", Weight: 5},
+		{URL: "http://localhost:9002", Weight: 2},
+		{URL: "http://localhost:9003", Weight: 1},
 	}
 
-	lb, err := NewLoadBalancer(urls)
+	// roundRobin := strategy.NewRoundRobin()
+	leastConnection := strategy.NewLeastConnection()
+	// weightedRoundRobin := strategy.NewWeightedRoundRobin()
+
+	lb, err := balancer.New(backendConfig, leastConnection,
+		balancer.WithHealthCheckInterval(10 * time.Second),
+		balancer.WithHealthCheckEndpoint("/health"),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	lb.StartHealthCheck(10 * time.Second)
 
 	server := &http.Server{
 		Addr:    ":8080",
