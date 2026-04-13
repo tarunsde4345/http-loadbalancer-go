@@ -36,12 +36,18 @@ func main() {
 		log.Fatal(err)
 	}
 
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", balancer.NewMetricsHandler(lb))
+	mux.Handle("/", lb)
+
 	server := &http.Server{
-		Addr:    ":8080",
-		Handler: lb,
+		Addr:    ":80",
+		Handler: mux,
 	}
 
-	log.Println("load balancer listening on :8080")
+	log.Println("load balancer listening on :80")
+	log.Println("metrics available at http://localhost:80/metrics")
+
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}

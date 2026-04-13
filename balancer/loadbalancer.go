@@ -1,9 +1,10 @@
 package balancer
 
 import (
-	"net/http"
 	"log"
+	"net/http"
 	"sync"
+	"time"
 
 	"github.com/tarunsde4345/http-loadbalancer-go/backend"
 	"github.com/tarunsde4345/http-loadbalancer-go/balancer/strategy"
@@ -83,10 +84,15 @@ func (lb *LoadBalancer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	lb.strategy.OnRequest(backend)
 	defer lb.strategy.OnResponse(backend)
 
+	startTime := time.Now()
 	rec := &responseRecorder{ResponseWriter: w, statusCode: http.StatusOK}
 	backend.Proxy.ServeHTTP(rec, r)
 
-	if rec.statusCode >= 500 {
+	latency := float64(time.Since(startTime).Milliseconds()) 
+	isError := rec.statusCode >= 500
+	backend.Metrics.RecordRequest(latency, isError)
+
+	if isError {
 		log.Printf("backend %s failed with status %d", backend.URL, rec.statusCode)
 		backend.CB.RecordFailure()
 	} else {

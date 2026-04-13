@@ -3,14 +3,15 @@ package backend
 import (
 	"net/http/httputil"
 	"net/url"
-	"sync/atomic"
 )
+
+const windowSize = 1000
 
 type Backend struct {
 	URL   				*url.URL
 	Proxy 				*httputil.ReverseProxy
     CB    				*CircuitBreaker
-	ActiveConnections 	atomic.Uint64
+	Metrics				*Metrics
 }
 
 type BackendConfig struct {
@@ -27,5 +28,6 @@ func New(raw string) (*Backend, error) {
 		URL:   u,
 		Proxy: httputil.NewSingleHostReverseProxy(u),
 		CB:    NewCircuitBreaker(),
+		Metrics: NewMetrics(windowSize), 
 	}, nil
 }

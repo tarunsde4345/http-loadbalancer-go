@@ -73,3 +73,9 @@ func (cb *CircuitBreaker) RecordSuccess() {
 	}
 }
 
+func (cb *CircuitBreaker) CBState() CBState {
+	cb.mu.Lock()
+	defer cb.mu.Unlock()
+	return cb.state
+}
+
