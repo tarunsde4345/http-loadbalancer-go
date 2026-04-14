@@ -22,9 +22,9 @@ func NewMetrics(windowSize int) *Metrics {
 	}
 }
 
-func (m *Metrics) RecordRequest(latency float64, success bool) {
+func (m *Metrics) RecordRequest(latency float64, isError bool) {
 	m.TotalRequests.Add(1)
-	if !success {
+	if isError {
 		m.TotalErrors.Add(1)
 	}
 

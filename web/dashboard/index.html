@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Load Balancer Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero__inner">
+        <div class="hero__brand" aria-label="Live Metrics">
+          <span>LIVE</span>
+          <span>METRICS</span>
+        </div>
+        <h1>Load Balancer Dashboard</h1>
+        <div class="hero__spacer" aria-hidden="true"></div>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="section">
+        <div class="section__heading">
+          <div class="refresh-pill" id="refresh-pill">Waiting for data...</div>
+        </div>
+
+        <div class="card-grid">
+          <article class="stat-card">
+            <div class="stat-card__icon">◷</div>
+            <div>
+              <p class="stat-card__label">Uptime</p>
+              <p class="stat-card__value" id="uptime">--</p>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-card__icon stat-card__icon--blue">↗</div>
+            <div>
+              <p class="stat-card__label">Total Requests</p>
+              <p class="stat-card__value" id="total-requests">0</p>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-card__icon stat-card__icon--red">!</div>
+            <div>
+              <p class="stat-card__label">Total Errors</p>
+              <p class="stat-card__value stat-card__value--red" id="total-errors">
+                0
+              </p>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-card__icon stat-card__icon--green">✓</div>
+            <div>
+              <p class="stat-card__label">Alive Backends</p>
+              <p class="stat-card__value stat-card__value--green" id="alive-backends">
+                0
+              </p>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-card__icon stat-card__icon--slate">×</div>
+            <div>
+              <p class="stat-card__label">Dead Backends</p>
+              <p class="stat-card__value" id="dead-backends">0</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="chart-grid">
+        <article class="panel">
+          <div class="panel__head">
+            <h3>Requests and Errors Over Time</h3>
+          </div>
+          <canvas id="traffic-chart" height="190"></canvas>
+        </article>
+
+        <article class="panel">
+          <div class="panel__head">
+            <h3>Latency (ms)</h3>
+          </div>
+          <canvas id="latency-chart" height="190"></canvas>
+        </article>
+      </section>
+
+      <section class="panel panel--table">
+        <div class="panel__head">
+          <h3>Backend Status</h3>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Backend</th>
+                <th>Requests</th>
+                <th>Errors</th>
+                <th>Avg Latency</th>
+                <th>P99 Latency</th>
+                <th>Circuit Breaker</th>
+              </tr>
+            </thead>
+            <tbody id="backend-table-body">
+              <tr>
+                <td colspan="6" class="table-placeholder">Loading metrics...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
